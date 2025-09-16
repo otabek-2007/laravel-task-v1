@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('auth.auth_sessions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('auth.users');
-            $table->string('jwt_token');
+            $table->text('jwt_token');
             $table->timestamp('expires_at');
             $table->timestamps();
         });
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('auth_sessions');
+        Schema::dropIfExists('auth.auth_sessions');
     }
 };
