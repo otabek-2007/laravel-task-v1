@@ -21,7 +21,7 @@ class AuthRepository
     public function storeToken(int $userId, string $token, Carbon $expiresAt): void
     {
         DB::table('auth.auth_sessions')->updateOrInsert(
-            ['user_id' => $userId],  
+            ['user_id' => $userId],
             [
                 'jwt_token' => $token,
                 'expires_at' => $expiresAt,

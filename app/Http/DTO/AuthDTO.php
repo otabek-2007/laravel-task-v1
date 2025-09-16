@@ -2,8 +2,6 @@
 
 namespace App\DTO;
 
-use Illuminate\Support\Carbon;
-
 class AuthDTO
 {
     public function __construct(

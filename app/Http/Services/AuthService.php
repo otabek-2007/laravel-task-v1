@@ -2,13 +2,12 @@
 
 namespace App\Http\Services;
 
-use App\Models\User;
 use App\Http\Repositories\AuthRepository;
-use Illuminate\Support\Facades\Hash;
-use Tymon\JWTAuth\Facades\JWTAuth;
-use Tymon\JWTAuth\Exceptions\JWTException;
+use App\Models\User;
 use Exception;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Hash;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthService
 {
@@ -23,40 +22,39 @@ class AuthService
         $this->userRepo->storeToken(
             $user->id,
             $token,
-            now()->addMinutes((int)config('jwt.ttl'))
+            now()->addMinutes((int) config('jwt.ttl'))
         );
 
         return [
-            'user'         => $user,                
+            'user' => $user,
             'access_token' => $token,
-            'token_type'   => 'bearer',
-            'expires_in'   => (int)config('jwt.ttl') * 60,
+            'token_type' => 'bearer',
+            'expires_in' => (int) config('jwt.ttl') * 60,
         ];
     }
 
+    public function login(array $credentials): array
+    {
+        if (! $token = auth()->attempt($credentials)) {
+            throw new Exception('Invalid credentials', 401);
+        }
 
+        $user = auth()->user();
 
-   public function login(array $credentials): array
-{
-    if (! $token = auth()->attempt($credentials)) {
-        throw new Exception('Invalid credentials', 401);
+        $this->userRepo->storeToken(
+            $user->id,
+            $token,
+            Carbon::now()->addMinutes((int) config('jwt.ttl'))
+        );
+
+        return [
+            'user' => $user,
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => (int) config('jwt.ttl') * 60,
+        ];
     }
 
-    $user = auth()->user();
-
-    $this->userRepo->storeToken(
-        $user->id,
-        $token,
-        Carbon::now()->addMinutes((int) config('jwt.ttl'))
-    );
-
-    return [
-        'user'         => $user,
-        'access_token' => $token,
-        'token_type'   => 'bearer',
-        'expires_in'   => (int) config('jwt.ttl') * 60,
-    ];
-}
     public function logout(): void
     {
         auth()->logout();

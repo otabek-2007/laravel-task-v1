@@ -8,8 +8,15 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 class User extends Authenticatable implements JWTSubject
 {
     protected $table = 'auth.users';
+
     protected $fillable = ['name', 'email', 'password'];
+
     protected $hidden = ['password', 'remember_token'];
+
+    public function authSessions()
+    {
+        return $this->hasMany(AuthSession::class, 'user_id');
+    }
 
     public function getJWTIdentifier()
     {

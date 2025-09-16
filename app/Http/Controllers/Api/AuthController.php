@@ -46,8 +46,8 @@ class AuthController extends Controller
         return (new AuthResource($data['user']))
             ->additional([
                 'access_token' => $data['access_token'],
-                'token_type'   => $data['token_type'],
-                'expires_in'   => $data['expires_in'],
+                'token_type' => $data['token_type'],
+                'expires_in' => $data['expires_in'],
             ])
             ->response()
             ->setStatusCode(201);
@@ -78,8 +78,8 @@ class AuthController extends Controller
         return (new AuthResource($data['user']))
             ->additional([
                 'access_token' => $data['access_token'],
-                'token_type'   => $data['token_type'],
-                'expires_in'   => $data['expires_in'],
+                'token_type' => $data['token_type'],
+                'expires_in' => $data['expires_in'],
             ])
             ->response();
     }
@@ -96,6 +96,7 @@ class AuthController extends Controller
     public function logout(): JsonResponse
     {
         $this->authService->logout();
+
         return response()->json(['message' => 'Successfully logged out']);
     }
 
@@ -113,6 +114,7 @@ class AuthController extends Controller
     public function refresh(): JsonResponse
     {
         $tokenData = $this->authService->refresh();
+
         return response()->json($tokenData);
     }
 
@@ -140,8 +142,8 @@ class AuthController extends Controller
         return (new AuthResource($user))
             ->additional([
                 'access_token' => auth()->getToken()->get(),
-                'token_type'   => 'bearer',
-                'expires_in'   => (int) config('jwt.ttl') * 60,
+                'token_type' => 'bearer',
+                'expires_in' => (int) config('jwt.ttl') * 60,
             ])
             ->response();
     }
