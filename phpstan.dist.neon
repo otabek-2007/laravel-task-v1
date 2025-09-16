@@ -1,0 +1,33 @@
+includes:
+  - vendor/larastan/larastan/extension.neon
+  - ./vendor/tpetry/laravel-postgresql-enhanced/phpstan-extension.neon
+
+parameters:
+    level: 10
+    paths:
+      - app
+      - lang
+      - bootstrap/app.php
+      - bootstrap/providers.php
+      - database
+      - routes
+
+    tmpDir: %currentWorkingDirectory%/.phpstan-cache
+
+    bootstrapFiles:
+      - phpstan-env.php
+
+    checkOctaneCompatibility: true
+    noEnvCallsOutsideOfConfig: true
+
+    exceptions:
+        check:
+            missingCheckedExceptionInThrows: true
+            tooWideThrowType: true
+        uncheckedExceptionClasses:
+            - 'App\Exceptions\LogicException'
+
+    ignoreErrors:
+        -
+            message: '#^Method Illuminate\\Database\\Migrations\\Migration@anonymous/database/migrations/(.*?)::(up|down)\(\) throws checked exception RuntimeException but it''s missing from the PHPDoc @throws tag\.$#'
+            path: database/migrations/*
