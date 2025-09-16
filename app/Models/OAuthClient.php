@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class OAuthClient extends Model
 {
-    protected $table = 'auth.oauth_clients'; // schema.jadval
+    protected $table = 'auth.oauth_clients';
 
     protected $fillable = [
         'name', 'client_id', 'client_secret', 'redirect_uri', 'scopes',
