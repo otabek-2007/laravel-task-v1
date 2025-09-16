@@ -2,13 +2,13 @@
 
 namespace App\Http\Services;
 
-use App\Http\Repositories\ClientRepository;
-use App\Http\Repositories\TokenRepository;
-use App\Models\User;
+use App\Http\DTO\OAuth\TokenRequestDTO;
+use App\Http\Repositories\OAuth\ClientRepository;
+use App\Http\Repositories\OAuth\TokenRepository;
 use App\Models\OAuthClient;
-use Exception;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Hash;
+use App\Models\User;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class OAuthService
@@ -25,25 +25,32 @@ class OAuthService
             'user_id' => $user->id,
             'client_id' => $client->id,
         ], now()->addMinutes(10));
+
+        return $code;
+    }
+
+    public function generateDummyCode(User $user, OAuthClient $client): string
+    {
+        $code = Str::random(40);
+        Cache::put("oauth_code:{$code}", [
+            'user_id' => $user->id,
+            'client_id' => $client->id,
+        ], now()->addMinutes(10));
+
         return $code;
     }
 
     public function exchangeCodeForToken(TokenRequestDTO $dto): array
     {
         $data = Cache::pull("oauth_code:{$dto->code}");
-        if (!$data) {
+        if (! $data) {
             throw new \Exception('Invalid or expired code');
         }
 
-        // access token (JWT)
-        $payload = [
-            'sub' => $data['user_id'],
-            'iss' => config('app.url'),
-            'exp' => now()->addMinutes(15)->timestamp,
-        ];
-        $accessToken = JWT::encode($payload, env('JWT_SECRET'), 'HS256');
+        $user = User::findOrFail($data['user_id']);
 
-        // refresh token
+        $accessToken = JWTAuth::fromUser($user);
+
         $refreshToken = Str::random(60);
         $this->tokens->storeRefreshToken(
             $data['user_id'],
@@ -53,9 +60,9 @@ class OAuthService
         );
 
         return [
-            'access_token'  => $accessToken,
-            'token_type'    => 'Bearer',
-            'expires_in'    => 900,
+            'access_token' => $accessToken,
+            'token_type' => 'Bearer',
+            'expires_in' => config('jwt.ttl') * 60,
             'refresh_token' => $refreshToken,
         ];
     }

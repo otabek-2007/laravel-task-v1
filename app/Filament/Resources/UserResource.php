@@ -22,7 +22,6 @@ class UserResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Users';
 
- 
     public static function form(Form $form): Form
     {
         return $form->schema([
